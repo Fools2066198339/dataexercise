@@ -1,4 +1,4 @@
-package com.hqyj.lk;
+package com.hqyj.lk.shop;
 
 import java.util.Scanner;
 
@@ -15,6 +15,7 @@ public class ShopClient {
         //初始化客户等级
         int lev = 0;
         //程序入口
+
         while (true) {
             //初始化界面
             s.init();
@@ -27,20 +28,20 @@ public class ShopClient {
                 //显示商品目录
                 s.showGoods();
                 //计算购买商品总和
-                double sumMoney = s.settlement();
+                double totalMoney = s.settlement();
                 //打印清单
                 System.out.println("-------------------");
                 System.out.println("购物汇总清单:");
-                System.out.println("总金额:" + String.format("%.2f", sumMoney));
+                System.out.println("总金额:" + String.format("%.2f", totalMoney));
                 System.out.println("折扣:" + (double) (discount - lev) / 10);
                 System.out.println("应付金额:" + String.format("%.2f",
-                        sumMoney *= ((double) (discount - lev) / 10)));
+                        totalMoney *= ((double) (discount - lev) / 10)));
                 //判断结算输入金额是否正确
                 while (true) {
                     System.out.println("请输入实付金额:");
                     double money = sc.nextDouble();
-                    if (!(money - sumMoney < 0)) {
-                        System.out.println("找钱:" + String.format("%.2f", money - sumMoney));
+                    if (money - totalMoney >= 0) {
+                        System.out.println("找钱:" + String.format("%.2f", money - totalMoney));
                         break;
                     } else {
                         System.out.println("输入有误，请重新输入！");

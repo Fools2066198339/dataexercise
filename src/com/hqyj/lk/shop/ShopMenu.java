@@ -1,4 +1,4 @@
-package com.hqyj.lk;
+package com.hqyj.lk.shop;
 
 import com.hqyj.lk.util.DBUtil;
 
