@@ -207,7 +207,6 @@ public class ShopMenu {
 
             System.out.println("是否还需要购买其他商品？(y/n)");
             flag = sc.next();
-
             new ShopMenu().showGoods();
         }
         return sum;
