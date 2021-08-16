@@ -1,8 +1,12 @@
 package com.hqyj.lk.util;
 
+
 import javax.sql.DataSource;
 import java.io.PrintWriter;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 
 /**
@@ -10,7 +14,7 @@ import java.util.logging.Logger;
  * @CREATE 2021-08-10-10:43
  */
 public class MyDataSource implements DataSource {
-    private static String url = "jdbc:mysql://localhost:3306/test";
+    private static String url = "jdbc:mysql://localhost:3306/shop";
     private static String user = "root";
     private static String password = "root";
 

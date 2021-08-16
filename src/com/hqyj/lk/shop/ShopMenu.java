@@ -17,16 +17,17 @@ public class ShopMenu {
      * 存放商品价格 prices
      * 存放顾客星级 custom
      */
-    private static HashMap<Integer, String> goods;
-    private static LinkedList<Double> prices;
-    private static HashMap<String, Integer> custom;
-
+    private static final HashMap<Integer, String> goods;
+    private static final LinkedList<Double> prices;
+    private static final HashMap<String, Integer> custom;
+    private static final LinkedList<Integer> repertory;
+    private static Connection con = DBUtil.getConnection();
     //从数据库中读取数据
     static {
-        Connection con = DBUtil.getConnection();
         goods = new HashMap<>();
         prices = new LinkedList<>();
         custom = new HashMap<>();
+        repertory = new LinkedList<>();
         try {
             //关闭事务自动提交(开启事务)
             con.setAutoCommit(false);
@@ -36,6 +37,7 @@ public class ShopMenu {
             while (rs.next()) {
                 goods.put(rs.getInt("id"), rs.getString("name"));
                 prices.add(rs.getDouble("price"));
+                repertory.add(rs.getInt("repe"));
             }
             con.commit();//执行完事务，则提交
             //恢复自动提交模式
@@ -130,13 +132,14 @@ public class ShopMenu {
         System.out.println("<<<<<<<<<<<<>>>>>>>>>>>>>>");
         System.out.println("         商品列表           ");
         System.out.println();
-        System.out.println("序号    商品名      价格");
+        System.out.println("序号    商品名      价格      库存");
         int index = 0;
         for (Integer key : goods.keySet()) {
             System.out.print(key + "      " + goods.get(key));
             printSpaces("商品名       ".length() - goods.get(key).length());
-            System.out.print(prices.get(index++));
+            System.out.print(prices.get(index)+"      "+repertory.get(index));
             System.out.println();
+            index++;
         }
         System.out.println("#######################");
 
@@ -155,33 +158,56 @@ public class ShopMenu {
      * 商品结算
      */
     public double settlement() {
-        double sum = 0.0f;
+        double sum = 0.0;
         String flag = "y";
         while ("y".equals(flag)) {
             Scanner sc = new Scanner(System.in);
-            System.out.println("请输入商品的编号:");
-            int ch = sc.nextInt();
-            System.out.println("请输入商品的数量:");
-            int count = sc.nextInt();
-            System.out.println("你选择了:");
-            System.out.println("       名称:" + goods.get(ch));
-            System.out.println("       单价:" + prices.get(ch - 1));
-            System.out.println("       数量:" + count);
-            System.out.println("       合计:" + String.format("%.2f",
-                    prices.get(ch - 1) * count));
-            sum += prices.get(ch - 1) * count;
+
+            int ch=0;
+            while (true) {
+                System.out.println("请输入商品的编号:");
+                ch= sc.nextInt();
+                if (ch < 0 || ch > repertory.size() - 1) {
+                    System.out.println("该商品不存在！");
+                } else {
+                    break;
+                }
+            }
+            int count = 0;
+            while (true) {
+
+                System.out.println("请输入商品的数量:");
+                 count= sc.nextInt();
+                if (repertory.get(ch-1) < count) {
+                    System.out.println("库存不足，请重新输入！");
+                } else {
+                    try {
+                        PreparedStatement pre = con.prepareStatement("update " +
+                                "goods set repe=? where id = ?");
+                        pre.setInt(1,(repertory.get(ch-1)-count));
+                        pre.setInt(2,ch);
+                        pre.executeUpdate();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    repertory.set(ch-1, (repertory.get(ch-1) - count));
+                    break;
+                }
+            }
+                System.out.println("你选择了:");
+                System.out.println("       名称:" + goods.get(ch));
+                System.out.println("       单价:" + prices.get(ch - 1));
+                System.out.println("       数量:" + count);
+                System.out.println("       合计:" + String.format("%.2f",
+                        prices.get(ch - 1) * count));
+                sum += prices.get(ch - 1) * count;
+
+
 
             System.out.println("是否还需要购买其他商品？(y/n)");
             flag = sc.next();
-/*                if ("n".equals(flag)) {
-                    break;
-                }*/
-//                if ("y".equals(flag)){
-//
-//                } else {
-//                    System.out.println("输入有误，请重新输入！");
-//                }
 
+            new ShopMenu().showGoods();
         }
         return sum;
     }
