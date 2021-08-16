@@ -41,7 +41,7 @@ class ShopMenuTest {
     void settlement() {
         new ShopMenu().settlement();
     }
-
+    
     @Test
     void showDiscount() {
         new ShopMenu().showDiscount();
